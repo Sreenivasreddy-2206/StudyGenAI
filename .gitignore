@@ -1,0 +1,24 @@
+# Python
+StudyGenAI_backend/venv/
+StudyGenAI_backend/__pycache__/
+StudyGenAI_backend/**/*.pyc
+
+# Environment secrets
+StudyGenAI_backend/.env
+
+# Google credentials / tokens
+StudyGenAI_backend/credentials.json
+StudyGenAI_backend/token.json
+
+# Local databases and uploaded files
+StudyGenAI_backend/chroma_db/
+StudyGenAI_backend/uploads/
+
+# Node
+StudyGenAI_frontend/node_modules/
+
+# Build output
+StudyGenAI_frontend/dist/
+
+# Environment files
+StudyGenAI_frontend/.env
