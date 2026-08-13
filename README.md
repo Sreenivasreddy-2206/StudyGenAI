@@ -172,6 +172,10 @@ Open:
 
 http://localhost:3000
 
+
+
+
+🔗 Application Flow
 User
   │
   ▼
