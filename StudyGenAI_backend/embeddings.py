@@ -1,8 +1,38 @@
 from sentence_transformers import SentenceTransformer
 
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# =========================================================
+# LAZY LOADED MODEL
+# =========================================================
 
+model = None
+
+
+def get_embedding_model():
+
+    global model
+
+    if model is None:
+
+        print("Loading embedding model...")
+
+        model = SentenceTransformer(
+            "all-MiniLM-L6-v2"
+        )
+
+        print("Embedding model loaded.")
+
+    return model
+
+
+# =========================================================
+# CREATE EMBEDDINGS
+# =========================================================
 
 def create_embeddings(chunks):
-    return model.encode(chunks).tolist()
+
+    embedding_model = get_embedding_model()
+
+    return embedding_model.encode(
+        chunks
+    ).tolist()
