@@ -16,8 +16,23 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive.file"
 ]
 
-CREDENTIALS_FILE = "credentials.json"
-TOKEN_FILE = "token.json"
+
+# =========================================================
+# CREDENTIAL FILE PATHS
+# =========================================================
+
+# Render Secret Files
+if os.path.exists("/etc/secrets/credentials.json"):
+
+    CREDENTIALS_FILE = "/etc/secrets/credentials.json"
+    TOKEN_FILE = "/etc/secrets/token.json"
+
+# Local development
+else:
+
+    CREDENTIALS_FILE = "credentials.json"
+    TOKEN_FILE = "token.json"
+
 
 DRIVE_FOLDER_NAME = "StudyGenAI"
 
@@ -30,8 +45,9 @@ def get_drive_service():
 
     creds = None
 
+
     # -----------------------------------------------------
-    # Existing token
+    # EXISTING TOKEN
     # -----------------------------------------------------
 
     if os.path.exists(TOKEN_FILE):
@@ -41,16 +57,20 @@ def get_drive_service():
             SCOPES
         )
 
+
     # -----------------------------------------------------
-    # Refresh / authenticate
+    # REFRESH / AUTHENTICATE
     # -----------------------------------------------------
 
     if not creds or not creds.valid:
 
+        # Refresh expired token
         if creds and creds.expired and creds.refresh_token:
 
             creds.refresh(Request())
 
+
+        # Local authentication
         else:
 
             flow = InstalledAppFlow.from_client_secrets_file(
@@ -62,15 +82,23 @@ def get_drive_service():
                 port=0
             )
 
-        # Save token
-        with open(TOKEN_FILE, "w") as token:
 
-            token.write(
-                creds.to_json()
-            )
+        # -------------------------------------------------
+        # SAVE TOKEN
+        # -------------------------------------------------
+
+        # Don't try to overwrite Render Secret File
+        if not TOKEN_FILE.startswith("/etc/secrets/"):
+
+            with open(TOKEN_FILE, "w") as token:
+
+                token.write(
+                    creds.to_json()
+                )
+
 
     # -----------------------------------------------------
-    # Build Drive service
+    # BUILD GOOGLE DRIVE SERVICE
     # -----------------------------------------------------
 
     service = build(
@@ -78,6 +106,7 @@ def get_drive_service():
         "v3",
         credentials=creds
     )
+
 
     return service
 
@@ -89,22 +118,32 @@ def get_drive_service():
 def get_studygen_folder(service):
 
     results = service.files().list(
+
         q=(
             f"name = '{DRIVE_FOLDER_NAME}' "
             "and mimeType = 'application/vnd.google-apps.folder' "
             "and trashed = false"
         ),
+
         spaces="drive",
+
         fields="files(id, name)"
+
     ).execute()
 
-    folders = results.get("files", [])
+
+    folders = results.get(
+        "files",
+        []
+    )
+
 
     if not folders:
 
         raise Exception(
             "StudyGenAI folder was not found in Google Drive."
         )
+
 
     return folders[0]["id"]
 
@@ -120,46 +159,70 @@ def upload_pdf_to_drive(
 
     service = get_drive_service()
 
+
     # -----------------------------------------------------
-    # Find StudyGenAI folder
+    # FIND STUDYGEN AI FOLDER
     # -----------------------------------------------------
 
     folder_id = get_studygen_folder(
         service
     )
 
+
     # -----------------------------------------------------
-    # File metadata
+    # FILE METADATA
     # -----------------------------------------------------
 
     file_metadata = {
+
         "name": filename,
-        "parents": [folder_id]
+
+        "parents": [
+            folder_id
+        ]
+
     }
 
+
     # -----------------------------------------------------
-    # PDF upload
+    # PDF UPLOAD
     # -----------------------------------------------------
 
     media = MediaFileUpload(
+
         file_path,
+
         mimetype="application/pdf"
+
     )
 
+
     uploaded_file = service.files().create(
+
         body=file_metadata,
+
         media_body=media,
+
         fields="id, name, mimeType, parents"
+
     ).execute()
 
+
     # -----------------------------------------------------
-    # Return Drive information
+    # RETURN DRIVE INFORMATION
     # -----------------------------------------------------
 
     return {
-        "file_id": uploaded_file["id"],
-        "name": uploaded_file["name"],
-        "mime_type": uploaded_file["mimeType"]
+
+        "file_id":
+            uploaded_file["id"],
+
+        "name":
+            uploaded_file["name"],
+
+        "mime_type":
+            uploaded_file["mimeType"]
+
     }
 
 
@@ -173,8 +236,12 @@ def delete_pdf_from_drive(
 
     service = get_drive_service()
 
+
     service.files().delete(
+
         fileId=drive_file_id
+
     ).execute()
+
 
     return True
