@@ -7,23 +7,39 @@ load_dotenv()
 
 
 # =========================================================
-# CHROMA CLOUD
+# CHROMA CLOUD CONFIG
 # =========================================================
 
-client = chromadb.CloudClient(
-    api_key=os.getenv("CHROMA_API_KEY"),
-    tenant=os.getenv("CHROMA_TENANT"),
-    database=os.getenv("CHROMA_DATABASE")
-)
+client = None
+collection = None
 
 
 # =========================================================
-# COLLECTION
+# GET COLLECTION
 # =========================================================
 
-collection = client.get_or_create_collection(
-    name="study_documents"
-)
+def get_collection():
+
+    global client
+    global collection
+
+    if collection is None:
+
+        print("Connecting to Chroma Cloud...")
+
+        client = chromadb.CloudClient(
+            api_key=os.getenv("CHROMA_API_KEY"),
+            tenant=os.getenv("CHROMA_TENANT"),
+            database=os.getenv("CHROMA_DATABASE")
+        )
+
+        collection = client.get_or_create_collection(
+            name="study_documents"
+        )
+
+        print("Connected to Chroma Cloud.")
+
+    return collection
 
 
 # =========================================================
@@ -37,15 +53,8 @@ def store_chunks(
     user_id,
     document_id
 ):
-    """
-    Store document chunks in ChromaDB.
 
-    Each chunk belongs to:
-        user_id
-        document_id
-        filename
-        chunk_index
-    """
+    collection = get_collection()
 
     ids = [
         f"{user_id}_{document_id}_{i}"
@@ -76,6 +85,8 @@ def store_chunks(
 
 def get_all_chunks():
 
+    collection = get_collection()
+
     result = collection.get(
         include=[
             "documents",
@@ -83,36 +94,20 @@ def get_all_chunks():
         ]
     )
 
-    print("IDs:")
-    print(result["ids"])
-
-    print("\nMetadata:")
-    print(result["metadatas"])
-
     return result
 
 
 # =========================================================
-# DELETE ONE DOCUMENT
-# =========================================================
-
-# =========================================================
-# DELETE ONE DOCUMENT
+# DELETE DOCUMENT
 # =========================================================
 
 def delete_document(user_id, document_id):
-    """
-    Delete ONLY the ChromaDB chunks belonging to
-    the specified user and document.
-    """
+
+    collection = get_collection()
 
     print("\n========== CHROMA DELETE ==========")
     print("User ID:", user_id)
     print("Document ID:", document_id)
-
-    # -----------------------------------------------------
-    # Find matching chunks first
-    # -----------------------------------------------------
 
     result = collection.get(
         where={
@@ -137,35 +132,16 @@ def delete_document(user_id, document_id):
     ids_to_delete = result.get("ids", [])
 
     print("Chunks found:", len(ids_to_delete))
-    print("IDs:", ids_to_delete)
-
-    # -----------------------------------------------------
-    # Nothing found
-    # -----------------------------------------------------
 
     if not ids_to_delete:
-        print("No Chroma chunks found for this document.")
-        print("===================================\n")
-        return
 
-    # -----------------------------------------------------
-    # Delete ONLY those IDs
-    # -----------------------------------------------------
+        print("No Chroma chunks found.")
+
+        return
 
     collection.delete(
         ids=ids_to_delete
     )
 
-    # -----------------------------------------------------
-    # Verify deletion
-    # -----------------------------------------------------
-
-    check = collection.get(
-        ids=ids_to_delete,
-        include=[
-            "metadatas"
-        ]
-    )
-
-    print("Remaining deleted IDs:", check.get("ids", []))
+    print("Document chunks deleted.")
     print("===================================\n")
