@@ -1,9 +1,14 @@
 from sentence_transformers import SentenceTransformer
 
+
+# =========================================================
+# LAZY LOADED MODEL
+# =========================================================
+
 model = None
 
 
-def get_model():
+def get_embedding_model():
 
     global model
 
@@ -12,8 +17,7 @@ def get_model():
         print("Loading embedding model...")
 
         model = SentenceTransformer(
-            "all-MiniLM-L6-v2",
-            device="cpu"
+            "all-MiniLM-L6-v2"
         )
 
         print("Embedding model loaded.")
@@ -21,10 +25,14 @@ def get_model():
     return model
 
 
+# =========================================================
+# CREATE EMBEDDINGS
+# =========================================================
+
 def create_embeddings(chunks):
 
-    model = get_model()
+    embedding_model = get_embedding_model()
 
-    return model.encode(
+    return embedding_model.encode(
         chunks
     ).tolist()
