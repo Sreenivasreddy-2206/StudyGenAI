@@ -8,13 +8,18 @@ def get_model():
 
     if model is None:
         print("Loading embedding model...")
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+
+        model = SentenceTransformer(
+            "all-MiniLM-L6-v2"
+        )
+
+        print("Embedding model loaded.")
 
     return model
 
 
 def create_embeddings(chunks):
 
-    embedding_model = get_model()
+    model = get_model()
 
-    return embedding_model.encode(chunks).tolist()
+    return model.encode(chunks).tolist()
