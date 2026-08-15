@@ -1,5 +1,5 @@
 from embeddings import create_embeddings
-from vector_db import collection
+from vector_db import get_collection
 from llm import generate_answer
 
 import json
@@ -9,16 +9,9 @@ import re
 # =========================================================
 # RETRIEVE
 # =========================================================
-def retrieve(
-    query,
-    user_id,
-    document_id,
-    top_k=3
-):
-    """
-    Retrieve relevant chunks ONLY from the selected document
-    belonging to the logged-in user.
-    """
+def retrieve(query, user_id, document_id, top_k=3):
+
+    collection = get_collection()
 
     query_embedding = create_embeddings([query])[0]
 
