@@ -1,4 +1,65 @@
+print("1. Starting app imports")
+
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
+print("2. FastAPI imported")
+
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from pathlib import Path
+
+print("3. Basic imports done")
+
+from drive_storage import upload_pdf_to_drive
+print("4. drive_storage imported")
+
+from uuid import uuid4
+from datetime import datetime, timezone
+
+from auth.routes import router as auth_router, get_current_user
+print("5. auth imported")
+
+from database import documents_collection
+print("6. database imported")
+
+from conversations.routes import router as conversations_router
+print("7. conversations imported")
+
+from pdf_reader import extract_text
+print("8. pdf_reader imported")
+
+from chunking import create_chunks
+print("9. chunking imported")
+
+from embeddings import create_embeddings
+print("10. embeddings imported")
+
+from vector_db import store_chunks
+print("11. vector_db imported")
+
+from rag import retrieve, build_prompt, generate_mcqs
+print("12. rag imported")
+
+from llm import generate_answer
+print("13. llm imported")
+
+from documents.routes import router as documents_router
+print("14. documents router imported")
+
+
+app = FastAPI()
+
+print("15. FastAPI app created")
+
+
+
+
+
+
+
+
+
+from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pathlib import Path
