@@ -58,3 +58,8 @@ chroma_db/
 
 .DS_Store
 Thumbs.db
+
+venv/
+__pycache__/
+.env
+uploads/

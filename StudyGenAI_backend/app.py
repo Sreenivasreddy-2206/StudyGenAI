@@ -101,15 +101,20 @@ app.include_router(conversations_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+
+        # Optional: keep these if you also use port 3000
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://192.168.29.3:3000",
+
+        "http://192.168.29.3:5173",
+         "http://10.1.48.202:3000",  # <-- ADD THIS
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # =========================================================
 # HOME
 # =========================================================

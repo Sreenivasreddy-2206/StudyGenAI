@@ -13,7 +13,7 @@ client = OpenAI(
 def generate_answer(prompt, response_schema=None):
 
     kwargs = {
-        "model": "llama-3.1-8b-instant",
+        "model": "openai/gpt-oss-20b",
         "messages": [
             {
                 "role": "user",
@@ -22,7 +22,6 @@ def generate_answer(prompt, response_schema=None):
         ]
     }
 
-    # For MCQ JSON generation
     if response_schema:
         kwargs["response_format"] = {
             "type": "json_object"
